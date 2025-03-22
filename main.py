@@ -456,7 +456,7 @@ class MapView(RelativeLayout):
     def read_map_from_file(self,filename):
         try:
             self.loaded_map_filename = filename
-            Logger.info("parse: ", filename)
+            Logger.info("parse: " + filename)
             self.tree = etree.parse(filename)
             Logger.info("parsed...")
             self.rootnode = self.tree.getroot()
