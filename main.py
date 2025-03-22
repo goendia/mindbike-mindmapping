@@ -31,7 +31,7 @@ from shutil import copyfile
 try:
     from copy import deepcopy
     Logger.info("successfully imported deepcopy")
-except ImportError,e:
+except ImportError as e:
     Logger.Error("couldn't load 'deepcopy'" + e)
 #from readmm import stringize
 
@@ -86,7 +86,7 @@ class NodeTextInput(TextInput):
             self.text = self.text[:-1]
         #print "on_text_validate1-1", self.node.text, "|||",self.text
         newtext=self.text
-        self.node.text=unicode(newtext,'utf-8')
+        self.node.text=str(newtext,'utf-8')
         self.node.rootwidget.textinput_is_active = False
         #self.node.rootwidget.textinput  = None
         if self.parent:
@@ -166,7 +166,7 @@ class Node(Label):
                 self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
             elif self.x <= left_bound:
                 self.parent.parent.scroll_x = (float(self.x)/self.parent.width)
-        except Exception, e:
+        except Exception as e:
             Logger.error("get_optimal_scroll_pos..." + str(e))
 
     def set_posright(self,value):
@@ -219,13 +219,13 @@ class Node(Label):
                 try:
                     Logger.info("eval: " + str(self.text))
                     self.text=str(eval(self.text[1:]))
-                except Exception, e:
+                except Exception as e:
                     Logger.error(str(e) + "; eval: " + str(self.text))
             #Seconds since epoch:
             modified = str(int(time()*1000))
             self.xmlnode.set("MODIFIED",modified)
-            self.xmlnode.set(u"TEXT",unicode(self.text,))
-        except Exception, e:
+            self.xmlnode.set("TEXT",str(self.text,))
+        except Exception as e:
             Logger.error("on_text2-no text?")
         #self.rootwidget.rebuild_map()
 
@@ -412,12 +412,12 @@ class MapView(RelativeLayout):
             else:
                 if keycode[1] == 'enter':
                     if 'shift' in modifiers:
-                        print "shift is pressed..."
+                        print("shift is pressed...")
                     else:
                         try:
                             self.children[0].on_text_validate(remove_enter=True)
                         except:
-                            print "oh... no node.textinput"
+                            print("oh... no node.textinput")
             # Return True to accept the key. Otherwise, it will be used by
             # the system.
         return False
@@ -425,7 +425,7 @@ class MapView(RelativeLayout):
     def do_for_undo(self):
         #print "do...", self.undopos, len(self.undostack), self.undostack
         if self.undopos < -1:
-            for i in xrange(self.undopos,-1,1):
+            for i in range(self.undopos,-1,1):
                 self.undostack.pop()
             self.undopos = -1
 
@@ -445,7 +445,7 @@ class MapView(RelativeLayout):
         #print "undo...", self.undopos, len(self.undostack), self.undostack
 
     def redo(self):
-        print "redo...", self.undopos, len(self.undostack), self.undostack
+        print("redo...", self.undopos, len(self.undostack), self.undostack)
         if self.undopos < -1:
             self.undopos += 1
             self.firstnode =self.undostack[self.undopos]
@@ -464,7 +464,7 @@ class MapView(RelativeLayout):
             self.firstnode.set("FOLDED","False")
             Logger.info( "build_map...")
             self.build_map(self.firstnode)
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldnt read map from file: " + str(e))
 
     def rebuild_map(self,do_for_undo=True):
@@ -492,7 +492,7 @@ class MapView(RelativeLayout):
             self.height = newnode.create_itself(self.firstnode,self,firstnodepos)
             self.selectedNode = newnode
             self.add_widget(newnode)
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldn't build map...   " + str(e))
         return ""
 
@@ -575,7 +575,7 @@ class MapView(RelativeLayout):
 
     def select_sibling(self,direction=1):
         thisnode=self.get_selected_node()
-        print "select_sister", thisnode.ntext,thisnode.text
+        print("select_sister", thisnode.ntext,thisnode.text)
         #print thisnode.siblings
         try:
             #print direction, thisnode.i_sibling,[x.text for x in thisnode.siblings], len(thisnode.siblings)
@@ -601,12 +601,12 @@ class MapView(RelativeLayout):
 
     def delete_selected_node(self):
         try:
-            print "delete this node: ",
+            print("delete this node: ", end=' ')
             thisnode = self.get_selected_node()
             thisnode.father_node.xmlnode.remove(thisnode.xmlnode)
             thisnode.father_node.selected = True
             self.selectedNodeID = thisnode.father_node.nid
-        except Exception, e:
+        except Exception as e:
             Logger.error("Node-deletion failed.   " + str(e))
         self.rebuild_map(do_for_undo=True)
 
@@ -632,7 +632,7 @@ class MapView(RelativeLayout):
         try:
             self.tree.write(filename)
             Logger.info("map saved to: "+ filename)
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldnt save map to " + filename + "   " + str(e))
 
     def save_map(self,node,filename):
@@ -643,7 +643,7 @@ class MapView(RelativeLayout):
         try:
             etree.ElementTree(node).write(filename)
             Logger.info("node ... saved to: "+ filename)
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldnt save map to " + filename + "   " + str(e))
 
     def close_map(self):
@@ -661,7 +661,7 @@ class MapView(RelativeLayout):
     def generate_hashmap(self):
         try:
             from re import findall
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldnt import re (regularExpressions)...or copy...  " + str(e))
             return None
         try:
@@ -720,12 +720,12 @@ class MapView(RelativeLayout):
                             firstmatching_node.append(deepcopy(xmlnode))
 
                                  #hashfirstnode = etree.SubElement(hashroot,'node')
-            print hashfirstnode#, hashfirstnode.tostring()
+            print(hashfirstnode)#, hashfirstnode.tostring()
             #etree.dump(hashroot)
             return hashroot
         #now we have a xml-hashmap. next step: display it in a new tab
 
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldn't create the hashmap!  " + str(e))
             return None
 
@@ -741,7 +741,7 @@ class MapView(RelativeLayout):
 
         self.merge_two_mindmaps(xmla,xmlb,xmlold)
 
-        print "parsed..."
+        print("parsed...")
         #self.rootnode = self.tree.getroot()
         #self.firstnode = self.rootnode.find("node")
 
@@ -753,15 +753,15 @@ class MapView(RelativeLayout):
             nodeb = xmlmapb.find(".//node[@ID='" + nodea.get('ID') + "']")
             #print "nodeA-ID:", nodea.get("ID")," , nodeb.id: ",nodeb.get("ID")
             if nodeb!= None:
-                print "the node is in both maps"
+                print("the node is in both maps")
                 if nodeb.get('MODIFIED')==nodea.get('MODIFIED'):
-                    print "same same"
+                    print("same same")
                 else:
-                    print "oh! modified!",nodea.get('MODIFIED'),nodeb.get('MODIFIED')
+                    print("oh! modified!",nodea.get('MODIFIED'),nodeb.get('MODIFIED'))
                     if int(nodea.get('MODIFIED'))>int(nodeb.get('MODIFIED')):
-                        print "a was later!"
+                        print("a was later!")
             else:
-                print "nodea existiert in map-b leider nicht"
+                print("nodea existiert in map-b leider nicht")
                 #add nodea to xmlmapnew
                 # we need the location!
                 # with lxml this would be: ..node..getpath() #-->map/node/node/node[3]
@@ -769,7 +769,7 @@ class MapView(RelativeLayout):
 
     def test_mergeNodes(self):
 
-        print "44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444"
+        print("44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444")
         filenameA = 'mergeA.mm'
         filenameB = 'mergeB.mm'
         filenameold = 'mergeold.mm'
@@ -840,7 +840,7 @@ class MapView(RelativeLayout):
             self.save_map(mapNewElement, filenameB)
             self.save_map(mapNewElement, filenameB + ".old.mm")
             self.read_map_from_file(filenameA)
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldn't finish the merging-process!  " + str(e))
 
     def mergeNodes(self,nodea,nodeb,nodenew,nodeold=None):
@@ -930,22 +930,22 @@ class MindmapApp(FloatLayout):
                 from os.path import join
                 Logger.info("open START-map from file: " + filename + "; current WD: " + getcwd() + "; joined: " + join(getcwd(),filename))
                 filename = join(getcwd(),filename)
-            except Exception, e:
+            except Exception as e:
                 Logger.error("couldnt resolve start.mm, " + str(e))
         try:
             Logger.info("open map from file: " + filename)
             self.mv.config=self.app.config
             self.mv2.config=self.app.config
-            print "close map"
+            print("close map")
             self.mv.close_map()
             self.mv.read_map_from_file(filename)
             Logger.info("map loaded!" +  filename)
             self.app.config.set('files','filename',filename)
             self.tabpanel.switch_to(self.mappanel)
-        except Exception, e:
+        except Exception as e:
             Logger.error("oh, loading " + filename + " didn't work...?")
         self.dismiss_popup()
-        print self.tabpanel
+        print(self.tabpanel)
 
     def create_new_map(self):
         self.save_map()
@@ -966,7 +966,7 @@ class MindmapApp(FloatLayout):
             file.close()
             #copyfile("new.mm", newname)
             self.load_map(newname)
-        except Exception, e:
+        except Exception as e:
             Logger.error("couldn't create a new file with the filename " + newname + str(e))
 
 
@@ -1000,7 +1000,7 @@ class mmviewApp(App):
         global MAX_NODE_WIDTH
         MIN_NODE_WIDTH = int(self.config.get("options","min_node_width"))
         MAX_NODE_WIDTH = int(self.config.get("options","max_node_width"))
-        print "MIN_NODE_WIDTH", MIN_NODE_WIDTH
+        print("MIN_NODE_WIDTH", MIN_NODE_WIDTH)
         self.mindmapapp.load_map(self.config.get("files","filename"))
         return self.mindmapapp
 
